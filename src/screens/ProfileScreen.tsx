@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuthStore } from '../store/auth';
+import { useAuthStore } from '../store';
 import { useTheme } from '../theme';
 import { Button, Card, TextInput, Divider } from '../components';
+import { api } from '../services';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { api } from '../services/api';
 
 // Validación para cambiar contraseña
 const pwdSchema = z.object({

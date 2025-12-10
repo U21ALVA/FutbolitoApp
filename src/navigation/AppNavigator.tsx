@@ -1,18 +1,24 @@
 // Navegación protegida por autenticación con React Navigation
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthStackParamList, AppStackParamList } from './types';
-import { useAuthStore } from '../store/auth';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { AuthStackParamList, AppStackParamList, TabsParamList } from './types';
+import { useAuthStore } from '../store';
+import { useTheme } from '../theme';
 import LoginScreen from '../screens/LoginScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import TrainingDetailScreen from '../screens/TrainingDetailScreen';
+import CalendarScreen from '../screens/CalendarScreen';
+import PaymentsScreen from '../screens/PaymentsScreen';
 import { View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
-import { useTheme } from '../theme';
+import { ThemeSwitcher, ProfileModal } from '../components';
 
-// Param lists tipadas para stacks
+// Param lists tipadas para navegadores
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const Tab = createBottomTabNavigator<TabsParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 
 function AuthNavigator() {
@@ -24,63 +30,128 @@ function AuthNavigator() {
   );
 }
 
-function PrivateNavigator() {
+function HeaderRight() {
   const { colors } = useTheme();
-  const store = useAuthStore();
-  const user = store.user;
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const logout = useAuthStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
 
-  const initials = (user?.nombre || 'U')
-    .split(' ')
-    .map((p) => p[0])
-    .join('')
-    .toUpperCase();
+  const getInitials = () => {
+    if (!user) return 'U';
+    const firstInitial = user.nombre?.[0] || '';
+    const lastInitial = user.apellido?.[0] || '';
+    return `${firstInitial}${lastInitial}`.toUpperCase();
+  };
 
-  // Rol-based color ring for quick visual role hint
-  const roleRingColor = user?.rol === 'entrenador' ? colors.greenHouse['700'] : colors.greenHouse['500'];
+  const handleLogout = async () => {
+    setProfileModalVisible(false);
+    await logout();
+  };
 
   return (
-    <AppStack.Navigator>
-      <AppStack.Screen
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16, gap: 12 }}>
+      <ThemeSwitcher />
+      <TouchableOpacity
+        onPress={() => setProfileModalVisible(true)}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          backgroundColor: colors.greenHouse['700'],
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>
+          {getInitials()}
+        </Text>
+      </TouchableOpacity>
+      <ProfileModal
+        visible={profileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+        onLogout={handleLogout}
+      />
+    </View>
+  );
+}
+
+function TabsNavigator() {
+  const { colors } = useTheme();
+
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: colors.card,
+        },
+        headerTintColor: colors.foreground,
+        headerRight: () => <HeaderRight />,
+        tabBarStyle: {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
+          borderTopWidth: 1,
+        },
+        tabBarActiveTintColor: colors.greenHouse['700'],
+        tabBarInactiveTintColor: colors.mutedForeground,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        },
+      }}
+    >
+      <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={({ navigation }) => ({
+        options={{
           title: 'Inicio',
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Abrir perfil"
-                onPress={() => navigation.navigate('Profile')}
-                style={{ marginRight: 12 }}
-              >
-                <View
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    backgroundColor: colors.card,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 2,
-                    borderColor: roleRingColor,
-                  }}
-                >
-                  <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 12 }}>{initials}</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Cerrar sesión"
-                onPress={() => store.logout()}
-                style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.destructive }}
-              >
-                <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>Salir</Text>
-              </TouchableOpacity>
-            </View>
-          ),
-        })}
+          tabBarLabel: 'Inicio',
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🏠</Text>,
+        }}
       />
-      <AppStack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Mi Perfil' }} />
+      <Tab.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{
+          title: 'Calendario',
+          tabBarLabel: 'Calendario',
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>📅</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Payments"
+        component={PaymentsScreen}
+        options={{
+          title: 'Pagos',
+          tabBarLabel: 'Pagos',
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>💳</Text>,
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function PrivateNavigator() {
+  const { colors } = useTheme();
+
+  return (
+    <AppStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: colors.card,
+        },
+        headerTintColor: colors.foreground,
+      }}
+    >
+      <AppStack.Screen
+        name="MainTabs"
+        component={TabsNavigator}
+        options={{ headerShown: false }}
+      />
+      <AppStack.Screen
+        name="TrainingDetail"
+        component={TrainingDetailScreen}
+        options={{ title: 'Detalles del Entrenamiento' }}
+      />
     </AppStack.Navigator>
   );
 }

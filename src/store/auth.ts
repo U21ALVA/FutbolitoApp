@@ -4,8 +4,9 @@ import { AuthState, AuthTokens, User } from '../types/auth';
 import { api } from '../services/api';
 import { clearTokens, getTokens, saveTokens } from '../utils/secureStore';
 
-// TODO(eliminar): Bandera temporal para permitir login simulado sin backend
-// Colócala en false o elimina este bloque cuando el backend esté listo.
+// ============================================================
+// TODO(eliminar líneas 8-9): Bandera para login mock. Borrar cuando backend esté listo
+// ============================================================
 const MOCK_LOGIN_ENABLED = true;
 
 type Actions = {
@@ -51,7 +52,10 @@ export const useAuthStore = create<Store>((set, get) => ({
   login: async (dni: string, password: string) => {
     try {
       set({ status: 'loading', error: null });
-      // TODO(eliminar): Modo simulación. Permite ingresar con credenciales de prueba sin llamar al backend
+      
+      // ============================================================
+      // TODO(eliminar líneas 57-69): Bloque de login mock. Borrar completamente
+      // ============================================================
       if (MOCK_LOGIN_ENABLED && dni === '12345678' && password === 'password123') {
         const mockUser: User = {
           id: 'mock-1',
@@ -64,7 +68,9 @@ export const useAuthStore = create<Store>((set, get) => ({
         set({ user: mockUser, tokens: null, status: 'authenticated', error: null });
         return;
       }
-
+      // ============================================================
+      // BACKEND READY - Descomentar líneas 71-82 cuando backend esté listo:
+      // ============================================================
       const res = await api.post('/auth/login', { dni, password });
       // Manejo flexible de estructura de respuesta
       const data = res.data || {};

@@ -29,7 +29,7 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const systemColorScheme = useColorScheme();
-  const [mode, setModeState] = useState<ThemeMode>('system');
+  const [mode, setModeState] = useState<ThemeMode>('light'); // Predeterminado: modo claro
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Cargar preferencia guardada
@@ -37,7 +37,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     async function loadTheme() {
       try {
         const savedMode = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        if (savedMode && ['light', 'dark', 'system'].includes(savedMode)) {
+        if (savedMode && ['light', 'dark'].includes(savedMode)) {
           setModeState(savedMode as ThemeMode);
         }
       } catch (error) {
@@ -60,13 +60,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   };
 
   const toggleTheme = () => {
-    const newMode = mode === 'light' ? 'dark' : mode === 'dark' ? 'system' : 'light';
+    const newMode = mode === 'light' ? 'dark' : 'light';
     setMode(newMode);
   };
 
   // Determinar si el tema actual es oscuro
-  const isDark =
-    mode === 'dark' || (mode === 'system' && systemColorScheme === 'dark');
+  const isDark = mode === 'dark';
 
   const currentColors = isDark ? colors.dark : colors.light;
 

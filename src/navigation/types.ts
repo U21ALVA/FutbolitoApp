@@ -4,7 +4,13 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
-export type AppStackParamList = {
+export type TabsParamList = {
   Home: undefined;
-  Profile: undefined;
+  Calendar: undefined;
+  Payments: undefined;
+};
+
+export type AppStackParamList = {
+  MainTabs: undefined;
+  TrainingDetail: { trainingId: string };
 };

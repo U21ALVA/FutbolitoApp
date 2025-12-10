@@ -14,6 +14,39 @@ Contraseña: password123
 Rol: padre
 ```
 
+## 📱 Funcionalidades Principales
+
+### 🏠 Pantalla de Inicio
+- Bienvenida personalizada con el nombre del usuario
+- **CUADRO 1**: Entrenamiento del día (HOY) con toda la información
+  - Horario, campo, objetivo, material necesario
+  - Al presionar se ven los detalles completos
+- **CUADRO 2**: Próximos eventos (entrenamientos y partidos)
+
+### 📅 Calendario
+- Vista de eventos programados por semana
+- Información completa de partidos (uniforme, llegada, aparcamiento, contacto)
+- Confirmación de asistencia para cada evento
+- Previsión meteorológica
+
+### 📋 Detalles de Entrenamiento
+- **CUADRO 3**: Estados según el momento
+  - **Próximo**: Objetivos específicos, observaciones del entrenador, material requerido
+  - **En curso**: Tiempo transcurrido, asistencia, ejercicios en progreso
+  - **Completado**: Reporte detallado con valoraciones y ejercicios realizados
+
+### 👤 Perfil de Usuario
+- Información personal (nombre, rol, DNI)
+- Cambiar contraseña
+- Cerrar sesión
+
+### 🎨 Navegación
+- Barra de navegación inferior con 3 secciones:
+  - 🏠 Inicio
+  - 📅 Calendario
+  - 👤 Perfil
+- Avatar en el header con color según el rol (padre: verde, entrenador: verde oscuro)
+
 ---
 
 ## 📋 Características Implementadas
@@ -107,10 +140,74 @@ pnpm start
 
 - React Native + Expo
 - TypeScript
-- React Navigation
+- React Navigation (Stack + Drawer)
 - Zustand (estado global)
 - Axios (HTTP)
 - React Hook Form + Zod
+- Expo SecureStore
+
+## 🏗️ Arquitectura y Patrones
+
+### ✅ Estado Global con Zustand
+- Store centralizado en `src/store/auth.ts`
+- Gestión de autenticación, usuario y tokens
+- Accesible desde cualquier componente vía hooks
+
+### ✅ Componentes Reutilizables
+Todos en `src/components/`:
+- `Button`, `Card`, `TextInput`, `Divider`
+- `TrainingCard`, `EventCard`
+- `ThemeSwitcher`
+- Exportados mediante barril (barrel) en `index.ts`
+
+### ✅ Sistema de Temas (Claro/Oscuro)
+- Paleta Green House personalizada (11 tonos)
+- ThemeContext con `useTheme()` hook
+- Soporte completo para modo claro y oscuro
+- Aplicado automáticamente en toda la app
+
+### ✅ Barriles (Barrels) para Importaciones Limpias
+```typescript
+// En lugar de:
+import { useAuthStore } from '../store/auth';
+import { api } from '../services/api';
+
+// Ahora:
+import { useAuthStore } from '../store';
+import { api } from '../services';
+```
+
+Barriles creados en:
+- `src/components/index.ts`
+- `src/store/index.ts`
+- `src/services/index.ts`
+- `src/types/index.ts`
+- `src/constants/index.ts`
+
+### ✅ Constantes Centralizadas
+Archivo `src/constants/mockData.ts`:
+- Todos los datos mock comentados con `TODO(eliminar)`
+- Endpoints del backend documentados
+- Bandera `MOCK_ENABLED` para activar/desactivar
+- Fácil migración cuando el backend esté listo
+
+### ✅ API Centralizada
+- Cliente Axios configurado en `src/services/api.ts`
+- Interceptores automáticos para Authorization
+- Manejo de errores 401 (logout automático)
+- baseURL configurable desde `.env`
+
+## 🎨 Navegación
+
+### Menú Lateral (Drawer Navigation)
+- **3 barras (hamburguesa)** en el header izquierdo
+- Secciones principales:
+  - 🏠 Inicio
+  - 📅 Calendario
+  - 👤 Perfil
+- Avatar del usuario con información
+- Botón "Cerrar Sesión" en el drawer
+- Indicador visual de rol (color del borde)
 
 ---
 

@@ -12,7 +12,7 @@ import { useAuthStore } from '../store/auth';
 // Validación de formulario Login
 const schema = z.object({
   dni: z.string().min(6, 'DNI inválido'),
-  password: z.string().min(4, 'Contraseña muy corta'),
+  password: z.string().min(4, 'Contraseña inválida'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -28,7 +28,7 @@ export default function LoginScreen({ navigation }: Props) {
   const { handleSubmit, setValue, formState } = useForm<FormData>({
     defaultValues: { dni: '', password: '' },
     resolver: zodResolver(schema),
-    mode: 'onChange',
+    mode: 'onSubmit',
   });
 
   const onSubmit = async (data: FormData) => {
@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }: Props) {
           <TextInput
             label="DNI"
             placeholder="Ingresa tu DNI"
-            onChangeText={(t) => setValue('dni', t, { shouldValidate: true })}
+            onChangeText={(t) => setValue('dni', t)}
             error={formState.errors.dni?.message}
             autoCapitalize="none"
             keyboardType="number-pad"
@@ -63,7 +63,7 @@ export default function LoginScreen({ navigation }: Props) {
             label="Contraseña"
             placeholder="••••••••"
             secureTextEntry
-            onChangeText={(t) => setValue('password', t, { shouldValidate: true })}
+            onChangeText={(t) => setValue('password', t)}
             error={formState.errors.password?.message}
           />
         </View>
