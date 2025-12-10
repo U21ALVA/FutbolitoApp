@@ -1,7 +1,7 @@
 // Cliente Axios con middleware Authorization y baseURL desde app.config.js
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { getAuthStore } from '../store/auth';
+import { getAuthStore } from '../store';
 
 const API_URL = (Constants.expoConfig?.extra as any)?.API_URL || 'http://10.0.2.2:3000/api';
 

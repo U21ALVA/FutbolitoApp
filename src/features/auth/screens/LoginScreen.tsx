@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, ToastAndroid, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '../navigation/types';
+import { AuthStackParamList } from '../../../navigation/types';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, TextInput } from '../components';
-import { useTheme } from '../theme';
-import { useAuthStore } from '../store/auth';
+import { Button, TextInput } from '../../../components';
+import { useTheme } from '../../../theme';
+import { useAuthStore } from '../../../store';
 
-// Validación de formulario Login
 const schema = z.object({
   dni: z.string().min(6, 'DNI inválido'),
   password: z.string().min(4, 'Contraseña inválida'),
@@ -32,12 +31,17 @@ export default function LoginScreen({ navigation }: Props) {
   });
 
   const onSubmit = async (data: FormData) => {
-    await login(data.dni, data.password);
-    // Al cambiar status a authenticated, NavigationContainer re-renderiza hacia PrivateNavigator
+    try {
+      await login(data.dni, data.password);
+    } catch (e: any) {
+      const message = e?.message || 'Credenciales inválidas';
+      if (Platform.OS === 'android') {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Error', message);
+      }
+    }
   };
-
-  // Efecto para redireccionar explícitamente (por si se requiere lógica por rol más adelante)
-  // La navegación se maneja automáticamente por el cambio de status en AppNavigator
 
   return (
     <KeyboardAvoidingView

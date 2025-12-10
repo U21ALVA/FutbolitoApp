@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Button, TextInput } from '../components';
-import { useTheme } from '../theme';
-import { api } from '../services/api';
+import { Button, TextInput } from '../../../components';
+import { useTheme } from '../../../theme';
+import { api } from '../../../services/api';
 
-// recuperación de contraseña Enviar DNI o email para iniciar proceso
 export default function ForgotPasswordScreen() {
   const { colors } = useTheme();
   const [identifier, setIdentifier] = useState('');
@@ -18,7 +17,6 @@ export default function ForgotPasswordScreen() {
     }
     try {
       setLoading(true);
-      // Ajustar endpoint según tu backend real
       await api.post('/auth/forgot-password', { identifier });
       setSent(true);
       Alert.alert('Solicitud enviada', 'Revisa tu correo para continuar');

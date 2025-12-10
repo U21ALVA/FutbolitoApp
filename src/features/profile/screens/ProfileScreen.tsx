@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuthStore } from '../store';
-import { useTheme } from '../theme';
-import { Button, Card, TextInput, Divider } from '../components';
-import { api } from '../services';
+import { useAuthStore } from '../../../store';
+import { useTheme } from '../../../theme';
+import { Button, Card, TextInput, Divider } from '../../../components';
+import { api } from '../../../services';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-// Validación para cambiar contraseña
 const pwdSchema = z.object({
   currentPassword: z.string().min(4, 'Contraseña actual requerida'),
   newPassword: z.string().min(6, 'Mínimo 6 caracteres'),
@@ -61,7 +60,6 @@ export default function ProfileScreen() {
         contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
       >
-      {/* TODO(eliminar): Aviso de modo demo cuando no hay tokens (login simulado) */}
       {!tokens ? (
         <Card title="Modo demo activo" description="Este perfil es simulado. Conecta el backend para datos reales.">
           <Text style={{ color: colors.mutedForeground }}>
@@ -72,7 +70,7 @@ export default function ProfileScreen() {
 
       <Card title="Mi Perfil" description="Información de tu cuenta">
         <View style={styles.row}>
-          <View style={[styles.avatar, { backgroundColor: colors.greenHouse['500'] }]}>
+          <View style={[styles.avatar, { backgroundColor: colors.greenHouse['500'] }]}> 
             <Text style={[styles.avatarText, { color: 'white' }]}>{initials}</Text>
           </View>
           <View style={{ flex: 1 }}>
@@ -122,7 +120,6 @@ export default function ProfileScreen() {
           onPress={handleSubmit(onChangePassword)}
           loading={loading}
           variant="primary"
-          // TODO(eliminar): En modo demo (sin tokens) deshabilitamos la acción que requiere backend
           disabled={!tokens}
         />
         {!tokens ? (
